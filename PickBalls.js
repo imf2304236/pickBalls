@@ -52,11 +52,12 @@ for(let k=1; k<=nBalls; ++k) {
 canvas.addEventListener('mousedown', event => {
   // calculate viewport pixel position:
   const rect = canvas.getBoundingClientRect();
-  const xvp = event.clientX - rect.left;
-  const yvp = event.clientY - rect.top;
+  const viewportPixelPositionX = event.clientX - rect.left;
+  const viewportPixelPositionY = event.clientY - rect.top;
 
   // highlight ball if it has been picked
-  balls.forEach(b => pickBall(xvp, yvp, b));
+  balls.forEach(
+    ball => pickBall(viewportPixelPositionX, viewportPixelPositionY, ball));
 });
 
 
