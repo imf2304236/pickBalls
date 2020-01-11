@@ -53,7 +53,7 @@ for (let k=1; k<=nBalls; ++k) {
   balls.push(ball);
 }
 
-// * Implement picking functionionality
+// Implement picking functionionality
 canvas.addEventListener('mousedown', (event) => {
   // calculate viewport pixel position:
   const rect = canvas.getBoundingClientRect();
@@ -65,21 +65,64 @@ canvas.addEventListener('mousedown', (event) => {
       (ball) => pickBall(viewportPixelPositionX, viewportPixelPositionY, ball));
 });
 
+let arrowDrawn = false;
 
 /**
  * Find out if a ball is picked with the mouse. It it is, set the emissive color
  * of the material equal to its color.
  *
- * @param {Number} xvp the viewport x-coordinate (pixel units)
- * @param {Number} yvp the viewport y-coordinate (pixel units)
+ * @param {Number} viewportCoordinateX the viewport x-coordinate (pixel units)
+ * @param {Number} viewportCoordinateY the viewport y-coordinate (pixel units)
  * @param {Object} ball a THREE.Mesh storing the ball and its radius as ball.userData.radius.
  */
-function pickBall(xvp, yvp, ball) {
+function pickBall(viewportCoordinateX, viewportCoordinateY, ball) {
   // viewport coordinates should be within the canvas
-  console.assert(xvp>=0 && xvp<=canvas.width, 'xvp='+xvp);
-  console.assert(yvp>=0 && yvp<=canvas.height, 'yvp='+yvp);
+  console.assert(
+      viewportCoordinateX >= 0 && viewportCoordinateX <= canvas.width,
+      'viewportCoordinateX=' + viewportCoordinateX,
+  );
+  console.assert(
+      viewportCoordinateY >= 0 && viewportCoordinateY <= canvas.height,
+      'viewportCoordinateY=' + viewportCoordinateY,
+  );
 
-  // TODO: implement this function
+  // Convert viewport coordinates to world coordinates
+  const normalizedDeviceCoordinates =
+      new THREE.Vector4(
+          (viewportCoordinateX - canvas.width / 2) * 2 / canvas.width,
+          (viewportCoordinateY - canvas.height / 2) * -2 / canvas.height,
+          1,
+      );
+
+  const homogeneousClipSpaceCoordinates =
+      normalizedDeviceCoordinates.clone().multiplyScalar(1);
+
+  const cameraSpaceCoordinates =
+      homogeneousClipSpaceCoordinates.clone().applyMatrix4(
+          camera.projectionMatrixInverse,
+      );
+
+  const worldSpaceCoordinates =
+      cameraSpaceCoordinates.clone().applyMatrix4(camera.matrixWorld);
+
+  // if (!arrowDrawn) {
+    const arrowHelper = new THREE.ArrowHelper(
+        worldSpaceCoordinates.normalize(),
+        camera.position,
+        50,
+        0xff0000,
+        1,
+        1,
+    );
+    scene.add(arrowHelper);
+    arrowDrawn = true;
+  // }
+
+  // TODO: Define vector from camera to point on far plane
+  // const cameraToFarPlaneVector = worldSpaceCoordinates.clone().W.set(1);
+  // TODO: Calculate distance to vector
+  // TODO: Check if distance is less than ball radius
+  // TODO: Highlight ball if necessary
 }
 
 
@@ -90,6 +133,7 @@ canvas.addEventListener('mouseup', (event) => {
 
 });
 
+// scene.add(new THREE.AxesHelper());
 
 // * Render loop
 const controls = new THREE.TrackballControls(camera, renderer.domElement);
