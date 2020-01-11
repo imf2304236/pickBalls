@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
 // * Initialize webGL and create a scene with camera and light
-const canvas = document.getElementById("mycanvas");
-const renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true});
-renderer.setClearColor('rgb(255, 255, 255)');    // set background color
+const canvas = document.getElementById('mycanvas');
+const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
+renderer.setClearColor('rgb(255, 255, 255)'); // set background color
 
 const scene = new THREE.Scene();
 const fov = 45;
@@ -11,7 +11,7 @@ const aspect = canvas.width / canvas.height;
 const near = 0.1;
 const far = 100;
 const camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
-camera.position.set(8,18,8);
+camera.position.set(8, 18, 8);
 camera.lookAt(scene.position);
 const light = new THREE.PointLight();
 light.position.copy(camera.position.clone());
@@ -19,29 +19,34 @@ scene.add( light );
 scene.add(new THREE.AmbientLight(0x606060));
 
 // * Place balls randomly within outerRadius from center of world
-const nBalls =10;
+const nBalls = 10;
 const outerRadius = 8;
 const ballMinRadius = 0.5;
 const ballMaxRadius = 1.5;
 const balls = [];
-for(let k=1; k<=nBalls; ++k) {
+for (let k=1; k<=nBalls; ++k) {
   // random color
   const rdColor = new THREE.Color(Math.random(), Math.random(), Math.random());
   // random radius
-  const rdRadius = ballMinRadius + Math.random() * (ballMaxRadius - ballMinRadius);
+  const rdRadius =
+      ballMinRadius + Math.random() * (ballMaxRadius - ballMinRadius);
   // random position
-  const rd = () => 2*Math.random() - 1;  // just a helper function
+  const rd = () => 2*Math.random() - 1; // just a helper function
   let rdPos;
-  while(true) {
-    rdPos = new THREE.Vector3(outerRadius*rd(), outerRadius*rd(), outerRadius*rd());
-    if(rdPos.lengthSq() <= outerRadius*outerRadius) {
+  while (true) {
+    rdPos =
+        new THREE.Vector3(outerRadius*rd(), outerRadius*rd(), outerRadius*rd());
+    if (rdPos.lengthSq() <= outerRadius*outerRadius) {
       break;
     }
   }
 
   // store all the balls within balls array
-  const ball = new THREE.Mesh(new THREE.SphereBufferGeometry(rdRadius, 32, 32),
-                              new THREE.MeshStandardMaterial( {color: rdColor}));
+  const ball =
+      new THREE.Mesh(
+          new THREE.SphereBufferGeometry(rdRadius, 32, 32),
+          new THREE.MeshStandardMaterial( {color: rdColor}),
+      );
   ball.userData.radius = rdRadius;
   ball.position.copy(rdPos);
   scene.add(ball);
@@ -49,7 +54,7 @@ for(let k=1; k<=nBalls; ++k) {
 }
 
 // * Implement picking functionionality
-canvas.addEventListener('mousedown', event => {
+canvas.addEventListener('mousedown', (event) => {
   // calculate viewport pixel position:
   const rect = canvas.getBoundingClientRect();
   const viewportPixelPositionX = event.clientX - rect.left;
@@ -57,7 +62,7 @@ canvas.addEventListener('mousedown', event => {
 
   // highlight ball if it has been picked
   balls.forEach(
-    ball => pickBall(viewportPixelPositionX, viewportPixelPositionY, ball));
+      (ball) => pickBall(viewportPixelPositionX, viewportPixelPositionY, ball));
 });
 
 
@@ -75,12 +80,11 @@ function pickBall(xvp, yvp, ball) {
   console.assert(yvp>=0 && yvp<=canvas.height, 'yvp='+yvp);
 
   // TODO: implement this function
-  
 }
 
 
 // Dehighlight ball if mouse is released
-canvas.addEventListener('mouseup', event => {
+canvas.addEventListener('mouseup', (event) => {
 
   // TODO: implement this function
 
@@ -89,6 +93,10 @@ canvas.addEventListener('mouseup', event => {
 
 // * Render loop
 const controls = new THREE.TrackballControls(camera, renderer.domElement);
+
+/**
+ * Renders three.js scene
+ */
 function render() {
   requestAnimationFrame(render);
   controls.update();
