@@ -87,9 +87,8 @@ function pickBall(viewportCoordinateX, viewportCoordinateY, ball) {
   // Convert viewport coordinates to world coordinates
   const normalizedDeviceCoordinates =
       new THREE.Vector4(
-          // FIXME: Scaling does not match provided formula
-          (viewportCoordinateX - canvas.width / 2) * 1.5 / canvas.width,
-          (viewportCoordinateY - canvas.height / 2) * -1.5 / canvas.height,
+          (viewportCoordinateX - canvas.width / 2) * 2 / canvas.width,
+          (viewportCoordinateY - canvas.height / 2) * -2 / canvas.height,
           1,
           1,
       );
@@ -105,22 +104,47 @@ function pickBall(viewportCoordinateX, viewportCoordinateY, ball) {
   const worldSpaceCoordinates =
       cameraSpaceCoordinates.clone().applyMatrix4(camera.matrixWorld);
 
-  // TODO: Remove ArrowHelpers
-  const arrowHelper = new THREE.ArrowHelper(
-      worldSpaceCoordinates.clone().normalize(),
-      camera.position,
-      50,
-      0xff0000,
-      1,
-      1,
-  );
-  scene.add(arrowHelper);
+  // Calculate distance to vector
+  const cameraToFarPlaneVector =
+      new THREE.Vector3(
+          worldSpaceCoordinates.x,
+          worldSpaceCoordinates.y,
+          worldSpaceCoordinates.z,
+      ).sub(camera.position);
 
-  // TODO: Define vector from camera to point on far plane
-  // const cameraToFarPlaneVector = worldSpaceCoordinates.clone().W.set(1);
-  // TODO: Calculate distance to vector
-  // TODO: Check if distance is less than ball radius
-  // TODO: Highlight ball if necessary
+  const cameraToBallVector =
+      new THREE.Vector3(
+          ball.position.x,
+          ball.position.y,
+          ball.position.z,
+      ).sub(camera.position);
+
+  const distanceToBall =
+      cameraToBallVector.sub(
+          cameraToFarPlaneVector.multiplyScalar(
+              cameraToBallVector.dot(cameraToFarPlaneVector) /
+                  cameraToFarPlaneVector.lengthSq(),
+          ),
+      ).length();
+
+  // Check if distance is less than ball radius
+  if (distanceToBall <= ball.userData.radius) {
+    console.log('Ball clicked!');
+
+    // TODO: Highlight clicked ball(s)
+    // TODO: Calculate & print Normalized Device Coordinates
+    // TODO: Calculate & print Camera Space Coordinates
+
+    // Print clicked ball world space coordinates
+    console.log(
+        'World space coordinates: (' +
+            ball.position.x + ', ' +
+            ball.position.y + ', ' +
+            ball.position.z + ')');
+
+    // Print distance from click vector to ball
+    console.log('Distance from ball to click: ' + distanceToBall);
+  }
 }
 
 
@@ -130,9 +154,6 @@ canvas.addEventListener('mouseup', (event) => {
   // TODO: implement this function
 
 });
-
-// TODO: Remove AxesHelper
-scene.add(new THREE.AxesHelper());
 
 // * Render loop
 const controls = new THREE.TrackballControls(camera, renderer.domElement);
