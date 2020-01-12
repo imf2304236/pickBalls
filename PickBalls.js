@@ -65,8 +65,6 @@ canvas.addEventListener('mousedown', (event) => {
       (ball) => pickBall(viewportPixelPositionX, viewportPixelPositionY, ball));
 });
 
-let arrowDrawn = false;
-
 /**
  * Find out if a ball is picked with the mouse. It it is, set the emissive color
  * of the material equal to its color.
@@ -89,13 +87,15 @@ function pickBall(viewportCoordinateX, viewportCoordinateY, ball) {
   // Convert viewport coordinates to world coordinates
   const normalizedDeviceCoordinates =
       new THREE.Vector4(
-          (viewportCoordinateX - canvas.width / 2) * 2 / canvas.width,
-          (viewportCoordinateY - canvas.height / 2) * -2 / canvas.height,
+          // FIXME: Scaling does not match provided formula
+          (viewportCoordinateX - canvas.width / 2) * 1.5 / canvas.width,
+          (viewportCoordinateY - canvas.height / 2) * -1.5 / canvas.height,
+          1,
           1,
       );
 
   const homogeneousClipSpaceCoordinates =
-      normalizedDeviceCoordinates.clone().multiplyScalar(1);
+      normalizedDeviceCoordinates.clone().multiplyScalar(camera.far);
 
   const cameraSpaceCoordinates =
       homogeneousClipSpaceCoordinates.clone().applyMatrix4(
@@ -105,18 +105,16 @@ function pickBall(viewportCoordinateX, viewportCoordinateY, ball) {
   const worldSpaceCoordinates =
       cameraSpaceCoordinates.clone().applyMatrix4(camera.matrixWorld);
 
-  // if (!arrowDrawn) {
-    const arrowHelper = new THREE.ArrowHelper(
-        worldSpaceCoordinates.normalize(),
-        camera.position,
-        50,
-        0xff0000,
-        1,
-        1,
-    );
-    scene.add(arrowHelper);
-    arrowDrawn = true;
-  // }
+  // TODO: Remove ArrowHelpers
+  const arrowHelper = new THREE.ArrowHelper(
+      worldSpaceCoordinates.clone().normalize(),
+      camera.position,
+      50,
+      0xff0000,
+      1,
+      1,
+  );
+  scene.add(arrowHelper);
 
   // TODO: Define vector from camera to point on far plane
   // const cameraToFarPlaneVector = worldSpaceCoordinates.clone().W.set(1);
@@ -133,7 +131,8 @@ canvas.addEventListener('mouseup', (event) => {
 
 });
 
-// scene.add(new THREE.AxesHelper());
+// TODO: Remove AxesHelper
+scene.add(new THREE.AxesHelper());
 
 // * Render loop
 const controls = new THREE.TrackballControls(camera, renderer.domElement);
