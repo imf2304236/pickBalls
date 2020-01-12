@@ -129,9 +129,9 @@ function pickBall(viewportCoordinateX, viewportCoordinateY, ball) {
 
   // Check if distance is less than ball radius
   if (distanceToBall <= ball.userData.radius) {
-    console.log('Ball clicked!');
+    // Highlight clicked ball(s)
+    ball.material.emissive = ball.material.color;
 
-    // TODO: Highlight clicked ball(s)
     // TODO: Calculate & print Normalized Device Coordinates
     // TODO: Calculate & print Camera Space Coordinates
 
@@ -150,9 +150,9 @@ function pickBall(viewportCoordinateX, viewportCoordinateY, ball) {
 
 // Dehighlight ball if mouse is released
 canvas.addEventListener('mouseup', (event) => {
-
-  // TODO: implement this function
-
+  balls.forEach((ball) => {
+    ball.material.emissive = new THREE.Color('black');
+  });
 });
 
 // * Render loop
