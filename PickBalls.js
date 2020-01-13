@@ -129,24 +129,46 @@ function pickBall(viewportCoordinateX, viewportCoordinateY, ball) {
 
   // Check if distance is less than ball radius
   if (distanceToBall <= ball.userData.radius) {
-    // Highlight clicked ball(s)
+    // Highlight clicked ball
     ball.material.emissive = ball.material.color;
 
-    // TODO: Calculate & print Normalized Device Coordinates
-    // TODO: Calculate & print Camera Space Coordinates
+    // Calculate & print Camera Space Coordinates
+    const ballCameraSpaceCoordinates =
+        new THREE.Vector4(
+            ball.position.x,
+            ball.position.y,
+            ball.position.z,
+            1,
+        ).applyMatrix4(camera.matrixWorldInverse);
+    console.log(
+        'Camera space coordinates: \n(' +
+            ballCameraSpaceCoordinates.x + ', ' +
+            ballCameraSpaceCoordinates.y + ', ' +
+            ballCameraSpaceCoordinates.z + ')');
+
+    // Calculate & print Normalized Device Coordinates
+    const ballNormalizedDeviceCoordinates =
+        ballCameraSpaceCoordinates.applyMatrix4(camera.projectionMatrix);
+    ballNormalizedDeviceCoordinates.multiplyScalar(
+        1 / ballNormalizedDeviceCoordinates.w);
+    console.log(
+        'Normalized device coordinates: \n(' +
+            ballNormalizedDeviceCoordinates.x + ', ' +
+            ballNormalizedDeviceCoordinates.y + ', ' +
+            ballNormalizedDeviceCoordinates.z + ')');
 
     // Print clicked ball world space coordinates
     console.log(
-        'World space coordinates: (' +
+        'World space coordinates: \n(' +
             ball.position.x + ', ' +
             ball.position.y + ', ' +
             ball.position.z + ')');
 
     // Print distance from click vector to ball
     console.log('Distance from ball to click: ' + distanceToBall);
+    console.log('\n');
   }
 }
-
 
 // Dehighlight ball if mouse is released
 canvas.addEventListener('mouseup', (event) => {
